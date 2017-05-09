@@ -1,10 +1,14 @@
 import logging
 import os
-import inspect
 import json
+import inspect
+import ast
 from cliff.command import Command
 
-
+class MParserVisitor(ast.NodeVisitor):
+    def visit_Assign(self, node):
+        self.generic_visit(node)
+        
 class Extract(Command):
     "A extract command that extract data from the meson build installation to json file."
 
@@ -36,7 +40,9 @@ class Extract(Command):
             
     def extract_keywords(self, mparser):
         self.log.debug('extract_keywords')
-        
+        mparser_src = inspect.getsource(mparser)
+        root_node = ast.parse(mparser_src)
+        MParserVisitor().visit(root_node)
         
     def extract_some(self):
         self.log.debug('extract_keywords')
